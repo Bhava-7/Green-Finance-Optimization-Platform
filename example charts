@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Sample Data
+categories = ['Company A', 'Company B', 'Company C', 'Company D']
+environmental_scores = [85, 70, 90, 60]
+social_scores = [75, 80, 65, 70]
+governance_scores = [80, 85, 75, 90]
+
+# 1. Bar Chart for ESG Scores by Company
+x = np.arange(len(categories))
+width = 0.25
+
+plt.figure(figsize=(10, 6))
+plt.bar(x - width, environmental_scores, width, label='Environmental', color='#6EC1E4')
+plt.bar(x, social_scores, width, label='Social', color='#A0D468')
+plt.bar(x + width, governance_scores, width, label='Governance', color='#F6BB42')
+plt.xticks(x, categories)
+plt.title('ESG Scores by Company', fontsize=14)
+plt.xlabel('Companies', fontsize=12)
+plt.ylabel('Scores', fontsize=12)
+plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+# 2. Pie Chart for Weighted ESG Metrics
+weights = [50, 30, 20]
+labels = ['Environmental', 'Social', 'Governance']
+colors = ['#6EC1E4', '#A0D468', '#F6BB42']
+
+plt.figure(figsize=(8, 8))
+plt.pie(weights, labels=labels, autopct='%1.1f%%', colors=colors, startangle=140, explode=(0.1, 0, 0))
+plt.title('Weighted ESG Metrics', fontsize=14)
+plt.tight_layout()
+plt.show()
+
+# 3. Line Chart for Performance Over Time
+time = np.arange(1, 13)  # 12 months
+company_a_scores = np.random.randint(60, 100, 12)
+company_b_scores = np.random.randint(50, 95, 12)
+
+plt.figure(figsize=(10, 6))
+plt.plot(time, company_a_scores, label='Company A', marker='o', color='#6EC1E4')
+plt.plot(time, company_b_scores, label='Company B', marker='s', color='#A0D468')
+plt.xticks(time)
+plt.title('Performance Over Time (Monthly)', fontsize=14)
+plt.xlabel('Months', fontsize=12)
+plt.ylabel('Scores', fontsize=12)
+plt.legend()
+plt.grid(axis='both', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
