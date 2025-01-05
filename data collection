@@ -1,0 +1,74 @@
+import pandas as pd
+
+# Load ESG data from various sources
+gov_data = pd.read_csv('government_esg_data.csv')
+ngo_data = pd.read_csv('ngo_esg_data.csv')
+financial_data = pd.read_csv('financial_institution_esg_data.csv')
+
+# Merge data into a single DataFrame
+esg_data = pd.concat([gov_data, ngo_data, financial_data], ignore_index=True)
+# Load additional data sources
+climate_data = pd.read_csv('climate_data.csv')
+economic_data = pd.read_csv('economic_data.csv')
+project_kpis = pd.read_csv('project_kpis.csv')
+
+# Merge all data into a single DataFrame
+final_data = esg_data.merge(climate_data, on='project_id') \
+                     .merge(economic_data, on='project_id') \
+                     .merge(project_kpis, on='project_id')
+
+# Handle missing values
+final_data.fillna(final_data.mean(), inplace=True)
+
+# Standardize the data (excluding the target variable)
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+features = final_data.drop('sustainability_score', axis=1)
+scaled_features = scaler.fit_transform(features)
+final_data_scaled = pd.DataFrame(scaled_features, columns=features.columns)
+final_data_scaled['sustainability_score'] = final_data['sustainability_score'].values
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+
+# Define ESG metrics (assumed to be in the dataset)
+esg_metrics = ['carbon_footprint', 'energy_efficiency', 'community_impact', 'labor_practices', 'corporate_governance']
+
+# Extract features and target variable
+X = final_data_scaled[esg_metrics]
+y = final_data_scaled['sustainability_score']
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train a Random Forest model
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Evaluate the model
+y_pred = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+print(f'Mean Squared Error: {mse:.2f}')
+import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
+
+# Assuming reports are in a list of strings
+reports = ["Report 1 text...", "Report 2 text...", "Report 3 text..."]
+
+# Initialize TF-IDF Vectorizer
+vectorizer = TfidfVectorizer(stop_words='english')
+tfidf_matrix = vectorizer.fit_transform(reports)
+
+# Example of extracting key phrases
+nltk.download('punkt')
+key_phrases = [nltk.word_tokenize(report) for report in reports]
+
+# Dimensionality Reduction using SVD
+svd = TruncatedSVD(n_components=100)
+reduced_matrix = svd.fit_transform(tfidf_matrix)
+
+# Combine TF-IDF features with other ESG data
+text_features = pd.DataFrame(reduced_matrix, columns=[f'text_feature_{i}' for i in range(100)])
+final_data_combined = final_data_scaled.join(text_features)
